@@ -1,9 +1,7 @@
-from aiogram import Bot, Dispatcher, Router, F
+from aiogram import Bot, Dispatcher, Router
 import sqlite3
-from config import TOKEN
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from config.config import TOKEN
 import json
-
 con = sqlite3.connect("data.db")
 cursor = con.cursor()
 router = Router()

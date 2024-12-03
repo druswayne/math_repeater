@@ -5,6 +5,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from keys.keys import kb_training_start
 from loader import json, router, user_data
 import os
+import time
 
 @router.message(F.text == 'kek')
 async def trainings(message:Message, bot: Bot):
@@ -29,7 +30,7 @@ async def trainings(message:Message, bot: Bot):
     message = await message.answer_photo(caption='Что дальше?',
                                          photo=file,
                                    reply_markup=builder.as_markup(resize_keyboard=True))
-    user_data[id_user] = [message.message_id, file_path ,len(file_path), 0]
+    user_data[id_user] = [message.message_id, file_path ,len(file_path), 0, 0]
 
-    print(user_data[id_user])
+
 
