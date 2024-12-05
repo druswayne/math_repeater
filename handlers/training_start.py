@@ -22,7 +22,7 @@ async def trainings(message:Message, bot: Bot):
     #        if 'of' not in file:
     #            file_path.append(f'{folder}/{file}')
 
-
+    print(files)
     builder = InlineKeyboardBuilder()
     for button in kb_training_start:
         builder.add(button)
@@ -32,7 +32,7 @@ async def trainings(message:Message, bot: Bot):
     message = await message.answer_photo(caption='Что дальше?',
                                          photo=file,
                                    reply_markup=builder.as_markup(resize_keyboard=True))
-    user_data[id_user] = [message.message_id, files ,len(files), 0, 0]
+    user_data[id_user] = [message.message_id, files ,0, 0, 0, False ]
 
 
 

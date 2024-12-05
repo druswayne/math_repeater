@@ -11,14 +11,14 @@ from keys.keys import kb_settings
 from loader import router, cursor, con
 
 
-@router.message(F.text == 'Настройки')
+@router.message(F.text == 'Статистика')
 async def get_settings(message: Message, bot: Bot, state: FSMContext):
     id_user = message.chat.id
     with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
         data_file = json.loads(file.read())
-    text = (f'Класс – {' ,'.join(data_file['class'])}\n'
-            f'Темы для повторения: {" ".join(data_file["tems"])}\n'
-            f'Время тренировки: {data_file["time_training"]}')
+    text = (f'Повторений за тренировку – {round(sum(data_file['count_cards_in_day'])/len(data_file['count_cards_in_day']),2)}\n'
+            f'Время тренировки: {round(sum(data_file['count_times_in_day'])/len(data_file['count_times_in_day']),2)}\n'
+            )
 
     builder = ReplyKeyboardBuilder()
     for button in kb_settings:

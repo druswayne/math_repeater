@@ -12,6 +12,7 @@ from handlers import settings
 from handlers import edit_settings
 from handlers import training_start
 from handlers import training
+from handlers import stats
 
 async def main():
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
