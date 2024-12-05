@@ -2,7 +2,7 @@ import json
 import random
 from importlib.metadata import files
 
-from keys.keys import kb_training_start, kb_training_ckeck, kb_training_next
+from keys.keys import kb_training_start, kb_training_ckeck, kb_training_next, kb_training_end
 from loader import router, user_data
 from aiogram import F, types, Bot
 from aiogram.filters import Command
@@ -27,7 +27,12 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
         file = FSInputFile(url)
 
     elif callback_data == 'check':
-        kb = kb_training_next
+        with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
+            data_file = json.loads(file.read())
+        data_file['files'][user_data[id_user][3]] += 1
+        with open(f'data/user_json/{id_user}.json', 'w', encoding='utf-8') as file:
+            file.write(json.dumps(data_file))
+
         user_data[id_user][1].remove(user_data[id_user][3])
 
         file_name = data[3].split('/')
@@ -35,9 +40,13 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
         file_name[-1] = name_file
         new_file = '/'.join(file_name)
         file = FSInputFile(new_file)
-
+        if not len(user_data[id_user][1]):
+            kb = kb_training_end
+        else:
+            kb = kb_training_next
     elif callback_data == 'next':
         if not len(user_data[id_user][1]):
+            del user_data[id_user]
             await bot.delete_message(chat_id=id_user, message_id=callback.message.message_id)
             text_message = ('Тренировка завершена!\n'
                             f'Повторений за тренировку: {data[2] - len(data[1])}\n'
@@ -49,6 +58,7 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
         user_data[id_user][3] = url
         file = FSInputFile(url)
     elif callback_data == 'end':
+        del user_data[id_user]
         await bot.delete_message(chat_id=id_user, message_id=callback.message.message_id)
         text_message = ('Тренировка завершена!\n'
                         f'Повторений за тренировку: {data[2] - len(data[1])}\n'

@@ -2,5 +2,12 @@
   "id_user": 731866035,
   "class": 7,
   "time_training": "12:00",
-  "tems": ["признаки"]
+  "tems": [
+    "\u043f\u0440\u0438\u0437\u043d\u0430\u043a\u0438"
+  ],
+  "files": {
+    "data/class/class_7/\u043f\u0440\u0438\u0437\u043d\u0430\u043a\u0438/1_on.png": 2,
+    "data/class/class_7/\u043f\u0440\u0438\u0437\u043d\u0430\u043a\u0438/2_on.png": 1,
+    "data/class/class_7/\u043f\u0440\u0438\u0437\u043d\u0430\u043a\u0438/3_on.png": 2
+  }
 }

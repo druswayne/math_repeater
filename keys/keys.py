@@ -24,3 +24,6 @@ kb_training_ckeck = [
 kb_training_next = [
     types.InlineKeyboardButton(text="Следующий", callback_data="training_next"),
     types.InlineKeyboardButton(text="Закончить", callback_data="training_end")]
+
+kb_training_end = [
+    types.InlineKeyboardButton(text="Закончить", callback_data="training_end")]
