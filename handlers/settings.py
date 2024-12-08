@@ -17,7 +17,7 @@ async def get_settings(message: Message, bot: Bot, state: FSMContext):
     with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
         data_file = json.loads(file.read())
     text = (f'Класс – {' ,'.join(data_file['class'])}\n'
-            f'Темы для повторения: {" ".join(data_file["tems"])}\n'
+            f'Темы для повторения: \n✅{"\n✅".join(data_file["tems"])}\n'
             f'Время тренировки: {data_file["time_training"]}')
 
     builder = ReplyKeyboardBuilder()

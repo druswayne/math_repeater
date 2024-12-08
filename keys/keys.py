@@ -12,6 +12,8 @@ kb_settings= [
     types.KeyboardButton(text='Сменить параметры'),
     types.KeyboardButton(text='Меню')]
 
+kb_exit_menu= [
+    types.KeyboardButton(text='Меню')]
 
 kb_training_start = [
     types.InlineKeyboardButton(text="Начать", callback_data="training_start"),

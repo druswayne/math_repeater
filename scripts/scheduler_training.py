@@ -7,9 +7,8 @@ from loader import json, router, user_data
 import os
 import time
 
-@router.message(F.text == 'Быстрая тренировка')
-async def trainings(message:Message, bot: Bot):
-    id_user = message.chat.id
+
+async def scheduler_training(bot: Bot, id_user):
     with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
         data_file = json.loads(file.read())
     file_path = data_file['files']
@@ -22,17 +21,17 @@ async def trainings(message:Message, bot: Bot):
     #        if 'of' not in file:
     #            file_path.append(f'{folder}/{file}')
 
-    print(files)
+
     builder = InlineKeyboardBuilder()
     for button in kb_training_start:
         builder.add(button)
     builder.adjust(1)
     url = 'data/start.png'
     file = FSInputFile(url)
-    message = await message.answer_photo(caption='Что дальше?',
+    await bot.send_photo(chat_id=id_user, caption='Что дальше?',
                                          photo=file,
                                    reply_markup=builder.as_markup(resize_keyboard=True))
-    user_data[id_user] = [message.message_id, files ,0, 0, 0, False ]
+    user_data[id_user] = [0, files ,0, 0, 0, False ]
 
 
 

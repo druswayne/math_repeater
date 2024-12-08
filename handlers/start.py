@@ -14,6 +14,7 @@ class Form_name(StatesGroup):
 @router.message(F.text == 'Меню')
 @router.message(Command('start'))
 async def reg(message: Message, bot: Bot, state: FSMContext) -> None:
+    print(message.chat.id)
     id_user = message.chat.id
     cursor.execute('select * from users where id=(?)', (id_user,))
     data = cursor.fetchall()
@@ -27,7 +28,7 @@ async def reg(message: Message, bot: Bot, state: FSMContext) -> None:
         for button in kb_menu:
             builder.add(button)
         builder.adjust(2)
-        await message.answer(text='Что дальшье?',
+        await message.answer(text='Что дальше?',
                              reply_markup=builder.as_markup(resize_keyboard=True))
 
 @router.message(Form_name.name)
