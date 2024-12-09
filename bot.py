@@ -13,7 +13,7 @@ from handlers import edit_settings
 from handlers import training_start
 from handlers import training
 from handlers import stats
-
+from handlers import add_sc
 async def main():
     scheduler.start()
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())

@@ -78,7 +78,7 @@ async def get_data(callback: types.CallbackQuery, bot: Bot):
         file.write(json.dumps(data_sample))
     cursor.execute('select id_scheduler from users where id=(?)',(id_user,))
     id_scheduler = cursor.fetchall()[0][0]
-    if not id_scheduler is None:
+    if len(id_scheduler) != 0:
         scheduler.remove_job(id_scheduler)
     id_message = callback.message.message_id
     await bot.delete_message(chat_id=id_user, message_id=id_message)
@@ -89,6 +89,7 @@ async def get_data(callback: types.CallbackQuery, bot: Bot):
 
     sc = scheduler.add_job(scheduler_training, trigger='cron', hour=data['time'].split(':')[0], minute=data['time'].split(':')[1], kwargs={'bot': bot, 'id_user':id_user})
     cursor.execute('update users set id_scheduler=(?)', (sc.id,))
+    con.commit()
     await callback.message.answer(text='Настройки сохранены!',
                          reply_markup=builder.as_markup(resize_keyboard=True))
 

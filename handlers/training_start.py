@@ -3,7 +3,7 @@ from aiogram.types import Message, FSInputFile
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from keys.keys import kb_training_start
-from loader import json, router, user_data
+from loader import json, router, user_data, user_data_day
 import os
 import time
 
@@ -22,13 +22,14 @@ async def trainings(message:Message, bot: Bot):
     #        if 'of' not in file:
     #            file_path.append(f'{folder}/{file}')
 
-    print(files)
+
     builder = InlineKeyboardBuilder()
     for button in kb_training_start:
         builder.add(button)
     builder.adjust(1)
     url = 'data/start.png'
     file = FSInputFile(url)
+    user_data_day[id_user] = "training"
     message = await message.answer_photo(caption='Что дальше?',
                                          photo=file,
                                    reply_markup=builder.as_markup(resize_keyboard=True))

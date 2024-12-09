@@ -14,3 +14,5 @@ dp.include_router(router)
 bot = Bot(TOKEN)
 
 user_data = {}
+user_data_day = {}
+user_data_not_start = {}

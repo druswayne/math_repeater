@@ -14,11 +14,14 @@ from loader import router, cursor, con
 @router.message(F.text == 'Настройки')
 async def get_settings(message: Message, bot: Bot, state: FSMContext):
     id_user = message.chat.id
-    with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
-        data_file = json.loads(file.read())
-    text = (f'Класс – {' ,'.join(data_file['class'])}\n'
-            f'Темы для повторения: \n✅{"\n✅".join(data_file["tems"])}\n'
-            f'Время тренировки: {data_file["time_training"]}')
+    try:
+        with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
+            data_file = json.loads(file.read())
+        text = (f'Класс – {' ,'.join(data_file['class'])}\n'
+                f'Темы для повторения: \n✅{"\n✅".join(data_file["tems"])}\n'
+                f'Время тренировки: {data_file["time_training"]}')
+    except:
+        text = 'Для начала необходимо настроить план занятий'
 
     builder = ReplyKeyboardBuilder()
     for button in kb_settings:
