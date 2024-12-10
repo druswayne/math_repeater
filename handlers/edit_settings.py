@@ -25,6 +25,12 @@ def get_directories_dict(root_dir):
 @router.message(F.text == 'Сменить параметры')
 async def edit_settings(message: Message, bot:Bot):
     id_user = message.chat.id
+    cursor.execute('select * from users where id=(?)', (id_user,))
+    user_ = cursor.fetchall()
+    if not user_:
+        await message.answer('Используй /start для регистрации')
+        return
+
     root_directory = 'data/class/'
     directories_dict = get_directories_dict(root_directory)
     data = json.dumps({'id_user': id_user, "tems": directories_dict})
@@ -46,6 +52,8 @@ def remove_empty_lists(d):
 async def get_data(callback: types.CallbackQuery, bot: Bot):
 
     id_user = callback.message.chat.id
+
+
     url = f'https://xata6bl4.pythonanywhere.com/static/{id_user}.json'
     data = json.loads(requests.get(url).text)
 
@@ -78,7 +86,7 @@ async def get_data(callback: types.CallbackQuery, bot: Bot):
         file.write(json.dumps(data_sample))
     cursor.execute('select id_scheduler from users where id=(?)',(id_user,))
     id_scheduler = cursor.fetchall()[0][0]
-    if len(id_scheduler) != 0:
+    if len(str(id_scheduler)) != 0 and id_scheduler is not None:
         scheduler.remove_job(id_scheduler)
     id_message = callback.message.message_id
     await bot.delete_message(chat_id=id_user, message_id=id_message)

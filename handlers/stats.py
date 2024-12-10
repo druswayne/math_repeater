@@ -1,5 +1,6 @@
 import json
 import requests
+import os
 from aiogram import Bot, types, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -14,6 +15,15 @@ from loader import router, cursor, con
 @router.message(F.text == 'Статистика')
 async def get_settings(message: Message, bot: Bot, state: FSMContext):
     id_user = message.chat.id
+    cursor.execute('select * from users where id=(?)', (id_user,))
+    user_ = cursor.fetchall()
+    if not user_:
+        await message.answer('Используй /start для регистрации')
+        return
+    file_path = f'data/user_json/{id_user}.json'
+    if not os.path.isfile(file_path):
+        await message.answer('Для начала необходимо выбрать параметры тренировки\nПерейди в меню настройки.')
+        return
     with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
         data_file = json.loads(file.read())
     try:

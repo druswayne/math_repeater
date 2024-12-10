@@ -3,7 +3,7 @@ import random
 from importlib.metadata import files
 from num2words import num2words
 from keys.keys import kb_training_start, kb_training_ckeck, kb_training_next, kb_training_end
-from loader import router, user_data, user_data_day, user_data_not_start
+from loader import router, user_data, user_data_day, user_data_not_start, cursor
 from aiogram import F, types, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -19,6 +19,13 @@ import time
 async def open_table(callback: types.CallbackQuery, bot: Bot):
     callback_data = callback.data.split('_')[1]
     id_user = callback.message.chat.id
+    cursor.execute('select * from users where id=(?)', (id_user,))
+    user_ = cursor.fetchall()
+
+    if not user_:
+        await callback.message.answer('Используй /start для регистрации')
+        return
+
     data = user_data[id_user]
     if callback_data == "start":
         user_data_not_start[id_user] = True
@@ -51,7 +58,6 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
         if not len(user_data[id_user][1]):
             del user_data[id_user]
             await bot.delete_message(chat_id=id_user, message_id=callback.message.message_id)
-            print('xyi')
             text_message = ('Тренировка завершена!\n'
                             f'Повторений за тренировку: {user_data[id_user][2] - len(user_data[id_user][1])}\n'
                             f'Время тренировки: {int((time.time() - user_data[id_user][4]) // 60)} мин {int((time.time() - user_data[id_user][4]) % 60)} сек')
@@ -83,19 +89,21 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
 
             if int(time.time() - user_data[id_user][4]) < 10:
 
-                text_message = ('Мне кажется ты жульничаешь, так быстро нельзя было завершить тренировку!\n'
-                                'Постарайся так больше не делать.')
+                text_message = (f'{user_[0][1]}, мне кажется ты жульничаешь!\nТренировка не может быть такой быстрой,\n'
+                                'постарайся так больше не делать.')
                 if user_data_day[id_user] == "scheduler":
                     data_file['nostop_day'] = 0
 
             else:
                 text_message = 'Тренировка завершена!\n'
-                if user_data_day[id_user] == "scheduler":
-                    text_message+= f'Ежедневных тренировок подряд: {data_file['nostop_day']}\n'
+
                 if user_data[id_user][2] > sr_znach:
-                    text_message+= f'Сегодня ты поработал лучше обычного!\n'
+                    text_message+= f'{user_[0][1]}, сегодня ты поработал лучше обычного!\n'
                 else:
-                    text_message+=f'Сегодня ты поработал чуть хуже обычного\n'
+                    text_message+=f'{user_[0][1]}, сегодня ты поработал чуть хуже обычного\n'
+                text_message+='Статистика тренировки:\n'
+                if user_data_day[id_user] == "scheduler":
+                    text_message += f'Ежедневных тренировок подряд: {data_file['nostop_day']}\n'
 
                 text_message+=f'Повторений за тренировку: {user_data[id_user][2]}\n'
                 text_message+=f'Время тренировки: {int((time.time() - user_data[id_user][4]) // 60)} мин {int((time.time() - user_data[id_user][4]) % 60)} сек'

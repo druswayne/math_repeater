@@ -8,13 +8,14 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from keys.keys import kb_menu
 
+
 class Form_name(StatesGroup):
     name = State()
+
 
 @router.message(F.text == 'Меню')
 @router.message(Command('start'))
 async def reg(message: Message, bot: Bot, state: FSMContext) -> None:
-    print(message.chat.id)
     id_user = message.chat.id
     cursor.execute('select * from users where id=(?)', (id_user,))
     data = cursor.fetchall()
@@ -31,6 +32,7 @@ async def reg(message: Message, bot: Bot, state: FSMContext) -> None:
         await message.answer(text='Что дальше?',
                              reply_markup=builder.as_markup(resize_keyboard=True))
 
+
 @router.message(Form_name.name)
 async def get_name(message: Message, bot, state: FSMContext):
     await state.update_data(name=message.text)
@@ -39,4 +41,8 @@ async def get_name(message: Message, bot, state: FSMContext):
     cursor.execute('UPDATE users SET name=(?)', (name,))
     con.commit()
     await state.clear()
-    await message.answer(f'Добро пожаловать {name}!')
+    builder = ReplyKeyboardBuilder()
+    for button in kb_menu:
+        builder.add(button)
+    builder.adjust(2)
+    await message.answer(f'Добро пожаловать {name}!', reply_markup=builder.as_markup(resize_keyboard=True))

@@ -14,6 +14,11 @@ from loader import router, cursor, con
 @router.message(F.text == 'Настройки')
 async def get_settings(message: Message, bot: Bot, state: FSMContext):
     id_user = message.chat.id
+    cursor.execute('select * from users where id=(?)', (id_user,))
+    user_ = cursor.fetchall()
+    if not user_:
+        await message.answer('Используй /start для регистрации')
+        return
     try:
         with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
             data_file = json.loads(file.read())

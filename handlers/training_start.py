@@ -3,13 +3,22 @@ from aiogram.types import Message, FSInputFile
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from keys.keys import kb_training_start
-from loader import json, router, user_data, user_data_day
+from loader import json, router, user_data, user_data_day, cursor
 import os
 import time
 
 @router.message(F.text == 'Быстрая тренировка')
 async def trainings(message:Message, bot: Bot):
     id_user = message.chat.id
+    cursor.execute('select * from users where id=(?)', (id_user,))
+    user_ = cursor.fetchall()
+    if not user_:
+        await message.answer('Используй /start для регистрации')
+        return
+    file_path = f'data/user_json/{id_user}.json'
+    if not os.path.isfile(file_path):
+        await message.answer('Для начала необходимо выбрать параметры тренировки\nПерейди в меню настройки.')
+        return
     with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
         data_file = json.loads(file.read())
     file_path = data_file['files']
