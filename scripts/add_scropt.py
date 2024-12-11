@@ -16,4 +16,4 @@ def add(bot: Bot):
                                    kwargs={'bot': bot, 'id_user': id_user})
             cursor.execute('update users set id_scheduler=(?) where id=(?)', (sc.id, id_user))
             con.commit()
-    print(scheduler.get_jobs())
+
