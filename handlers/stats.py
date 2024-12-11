@@ -27,14 +27,14 @@ async def get_settings(message: Message, bot: Bot, state: FSMContext):
     with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
         data_file = json.loads(file.read())
     try:
-        text = (
-            f'Повторений за тренировку – {round(sum(data_file['count_cards_in_day']) / len(data_file['count_cards_in_day']), 2)}\n'
-            f'Время тренировки: {round(sum(data_file['count_times_in_day']) / len(data_file['count_times_in_day']), 2)}\n'
+        text = ('Средние показатели по тренировкам:\n'
+            f'⏺️ Повторений за тренировку – {round(sum(data_file['count_cards_in_day']) / len(data_file['count_cards_in_day']), 2)}\n'
+            f'⏺️ Время тренировки: {round(sum(data_file['count_times_in_day']) / len(data_file['count_times_in_day']), 2)}\n'
             )
     except:
-        text = (
-            f'Повторений за тренировку – {0}\n'
-            f'Время тренировки: {0}\n'
+        text = ('Средние показатели по тренировкам:\n'
+            f'⏺️ Повторений за тренировку – {0}\n'
+            f'⏺️ Время тренировки: {0}\n'
             )
 
     builder = ReplyKeyboardBuilder()

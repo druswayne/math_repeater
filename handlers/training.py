@@ -95,18 +95,18 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
                     data_file['nostop_day'] = 0
 
             else:
-                text_message = 'Тренировка завершена!\n'
+                text_message = 'Тренировка завершена 🎉\n'
 
                 if user_data[id_user][2] > sr_znach:
-                    text_message+= f'{user_[0][1]}, сегодня ты поработал лучше обычного!\n'
+                    text_message+= f'{user_[0][1]}, сегодня ты поработал лучше обычного 📈\n'
                 else:
-                    text_message+=f'{user_[0][1]}, сегодня ты поработал чуть хуже обычного\n'
-                text_message+='Статистика тренировки:\n'
+                    text_message+=f'{user_[0][1]}, сегодня ты поработал чуть хуже обычного 📉\n'
+                text_message+='\nСтатистика тренировки:\n'
                 if user_data_day[id_user] == "scheduler":
-                    text_message += f'Ежедневных тренировок подряд: {data_file['nostop_day']}\n'
+                    text_message += f'Ежедневных тренировок подряд: {data_file['nostop_day']} 🏆\n'
 
-                text_message+=f'Повторений за тренировку: {user_data[id_user][2]}\n'
-                text_message+=f'Время тренировки: {int((time.time() - user_data[id_user][4]) // 60)} мин {int((time.time() - user_data[id_user][4]) % 60)} сек'
+                text_message+=f'Повторений за тренировку: {user_data[id_user][2]}💪\n'
+                text_message+=f'Время тренировки: {int((time.time() - user_data[id_user][4]) // 60)} мин {int((time.time() - user_data[id_user][4]) % 60)} сек ⏳'
             del user_data_day[id_user]
             with open(f'data/user_json/{id_user}.json', 'w', encoding='utf-8') as file:
                                     file.write(json.dumps(data_file))

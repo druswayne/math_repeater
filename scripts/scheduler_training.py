@@ -48,8 +48,8 @@ async def scheduler_training(bot: Bot, id_user):
         with open(f'data/user_json/{id_user}.json', 'w', encoding='utf-8') as file:
             file.write(json.dumps(data_file))
         del user_data_not_start[id_user]
-        await bot.send_message(chat_id=id_user, text=(f'{user_[0][1]}, ты пропустил сегодня тренировку!\n'
-                                                         'Постарайся так не делать, а придерживаться плана'))
+        await bot.send_message(chat_id=id_user, text=(f'{user_[0][1]}, ты пропустил сегодня тренировку 🦥\n'
+                                                         'Постарайся придерживайся плана 📋'))
 
 
 
