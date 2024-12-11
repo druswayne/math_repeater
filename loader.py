@@ -5,7 +5,7 @@ import json
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
 
-con = sqlite3.connect("data.db")
+con = sqlite3.connect("config/data.db")
 cursor = con.cursor()
 router = Router()
 

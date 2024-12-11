@@ -25,4 +25,5 @@ async def repeat_sc(message: Message, bot: Bot):
                                        minute=data['time_training'].split(':')[1], kwargs={'bot': bot, 'id_user': id_user})
                 cursor.execute('update users set id_scheduler=(?)', (sc.id,))
                 con.commit()
+
         await bot.send_message(chat_id=user_id, text='ok')

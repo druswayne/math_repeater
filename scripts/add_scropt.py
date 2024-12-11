@@ -14,5 +14,6 @@ def add(bot: Bot):
             sc = scheduler.add_job(scheduler_training, trigger='cron', hour=data['time_training'].split(':')[0],
                                    minute=data['time_training'].split(':')[1],
                                    kwargs={'bot': bot, 'id_user': id_user})
-            cursor.execute('update users set id_scheduler=(?)', (sc.id,))
+            cursor.execute('update users set id_scheduler=(?) where id=(?)', (sc.id, id_user))
             con.commit()
+    print(scheduler.get_jobs())
