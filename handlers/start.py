@@ -20,8 +20,7 @@ async def reg(message: Message, bot: Bot, state: FSMContext) -> None:
     cursor.execute('select * from users where id=(?)', (id_user,))
     data = cursor.fetchall()
     if not len(data):
-        cursor.execute('insert into users (id) values (?)', (id_user,))
-        con.commit()
+
         await state.set_state(Form_name.name)
         await message.answer('Как к тебе обращаться?')
     else:
@@ -37,8 +36,9 @@ async def reg(message: Message, bot: Bot, state: FSMContext) -> None:
 async def get_name(message: Message, bot, state: FSMContext):
     await state.update_data(name=message.text)
     data_name = await state.get_data()
+    id_user = message.chat.id
     name = data_name['name']
-    cursor.execute('UPDATE users SET name=(?)', (name,))
+    cursor.execute('insert into users (id, name) values (?, ?)', (id_user, name))
     con.commit()
     await state.clear()
     builder = ReplyKeyboardBuilder()

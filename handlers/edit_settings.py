@@ -1,5 +1,4 @@
 import json
-from idlelib.iomenu import encoding
 from random import shuffle
 
 import requests
@@ -96,7 +95,7 @@ async def get_data(callback: types.CallbackQuery, bot: Bot):
     builder.adjust(2)
 
     sc = scheduler.add_job(scheduler_training, trigger='cron', hour=data['time'].split(':')[0], minute=data['time'].split(':')[1], kwargs={'bot': bot, 'id_user':id_user})
-    cursor.execute('update users set id_scheduler=(?)', (sc.id,))
+    cursor.execute('update users set id_scheduler=(?) where id=(?)', (sc.id, id_user))
     con.commit()
     await callback.message.answer(text='Настройки сохранены!',
                          reply_markup=builder.as_markup(resize_keyboard=True))

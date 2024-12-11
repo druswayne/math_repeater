@@ -15,8 +15,10 @@ from handlers import training
 from handlers import stats
 from handlers import add_sc
 from handlers import del_user
+from scripts.add_scropt import add
 async def main():
     scheduler.start()
+    add(bot)
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
 
