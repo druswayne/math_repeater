@@ -24,6 +24,8 @@ async def get_settings(message: Message, bot: Bot, state: FSMContext):
     if not os.path.isfile(file_path):
         await message.answer('Для начала необходимо выбрать параметры тренировки\nПерейди в меню настройки.')
         return
+    cursor.execute('select counter_day from users where id = (?)', (731866035,))
+    counter_day = cursor.fetchall()[0][0]
     with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
         data_file = json.loads(file.read())
     try:

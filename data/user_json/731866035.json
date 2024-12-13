@@ -1,1 +1,28 @@
-{"id_user": 731866035, "class": ["7"], "time_training": "14:10", "tems": ["\u043f\u0440\u0438\u0437\u043d\u0430\u043a\u0438"], "files": {"data/class/class_7/\u043f\u0440\u0438\u0437\u043d\u0430\u043a\u0438/2_on.png": 0, "data/class/class_7/\u043f\u0440\u0438\u0437\u043d\u0430\u043a\u0438/3_on.png": 0, "data/class/class_7/\u043f\u0440\u0438\u0437\u043d\u0430\u043a\u0438/1_on.png": 0}, "nostop_day": 0, "count_cards_in_day": [], "count_times_in_day": []}
+{
+  "id_user": 731866035,
+  "class": [
+    "7"
+  ],
+  "time_training": "14:10",
+  "tems": [
+    "\u043f\u0440\u0438\u0437\u043d\u0430\u043a\u0438"
+  ],
+  "files": {
+    "data/class/class_7/\u043f\u0440\u0438\u0437\u043d\u0430\u043a\u0438/2_on.png": 2,
+    "data/class/class_7/\u043f\u0440\u0438\u0437\u043d\u0430\u043a\u0438/3_on.png": 1,
+    "data/class/class_7/\u043f\u0440\u0438\u0437\u043d\u0430\u043a\u0438/1_on.png": 1
+  },
+
+  "count_cards_in_day": [
+    1,
+    1,
+    0,
+    2
+  ],
+  "count_times_in_day": [
+    0.05,
+    0.74,
+    0.02,
+    0.49
+  ]
+}

@@ -3,7 +3,7 @@ import random
 from importlib.metadata import files
 from num2words import num2words
 from keys.keys import kb_training_start, kb_training_ckeck, kb_training_next, kb_training_end
-from loader import router, user_data, user_data_day, user_data_not_start, cursor
+from loader import router, user_data, user_data_day, user_data_not_start, cursor, con
 from aiogram import F, types, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -76,7 +76,8 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
             data_file['count_cards_in_day'].append(user_data[id_user][2])
             data_file['count_times_in_day'].append(round((time.time() - user_data[id_user][4]) / 60, 2))
             if user_data_day[id_user] == "scheduler":
-                data_file['nostop_day'] += 1
+                cursor.execute('update users set counter_day = counter_day + 1')
+                con.commit()
 
 
 
@@ -92,7 +93,8 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
                 text_message = (f'{user_[0][1]}, мне кажется ты жульничаешь!\nТренировка не может быть такой быстрой,\n'
                                 'постарайся так больше не делать.')
                 if user_data_day[id_user] == "scheduler":
-                    data_file['nostop_day'] = 0
+                    cursor.execute('update users set counter_day = 0')
+                    con.commit()
 
             else:
                 text_message = 'Тренировка завершена 🎉\n'
@@ -103,7 +105,10 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
                     text_message+=f'{user_[0][1]}, сегодня ты поработал чуть хуже обычного 📉\n'
                 text_message+='\nСтатистика тренировки:\n'
                 if user_data_day[id_user] == "scheduler":
-                    text_message += f'Ежедневных тренировок подряд: {data_file['nostop_day']} 🏆\n'
+                    cursor.execute('select counter_day from users where id = (?)', (731866035,))
+                    counter_day = cursor.fetchall()[0][0]
+                    num_day = num2words(counter_day, to='ordinal', lang='ru',gender='f')
+                    text_message += f'Сегодня уже {num_day} тренировка подряд.\nТак держать!🏆\n'
 
                 text_message+=f'Повторений за тренировку: {user_data[id_user][2]}💪\n'
                 text_message+=f'Время тренировки: {int((time.time() - user_data[id_user][4]) // 60)} мин {int((time.time() - user_data[id_user][4]) % 60)} сек ⏳'

@@ -3,7 +3,7 @@ from aiogram.types import Message, FSInputFile
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import asyncio
 from keys.keys import kb_training_start
-from loader import json, router, user_data, user_data_day, user_data_not_start, cursor
+from loader import json, router, user_data, user_data_day, user_data_not_start, cursor, con
 import os
 import time
 
@@ -42,11 +42,9 @@ async def scheduler_training(bot: Bot, id_user):
 
         await message.delete()
         del user_data[id_user]
-        with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
-            data_file = json.loads(file.read())
-        data_file['nostop_day'] = 0
-        with open(f'data/user_json/{id_user}.json', 'w', encoding='utf-8') as file:
-            file.write(json.dumps(data_file))
+
+        cursor.execute('update users set counter_day = 0')
+        con.commit()
         del user_data_not_start[id_user]
         await bot.send_message(chat_id=id_user, text=(f'{user_[0][1]}, ты пропустил сегодня тренировку 🦥\n'
                                                          'Постарайся придерживайся плана 📋'))

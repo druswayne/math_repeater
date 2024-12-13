@@ -1,6 +1,9 @@
 import json
 import logging
 import asyncio
+
+from num2words import num2words
+
 from loader import *
 import datetime
 from typing import Callable, Dict, Any, Awaitable
@@ -16,6 +19,9 @@ from handlers import stats
 from handlers import add_sc
 from handlers import del_user
 from scripts.add_scropt import add
+
+
+
 async def main():
     scheduler.start()
     add(bot)

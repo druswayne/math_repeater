@@ -11,7 +11,7 @@ from keys.keys import kb_settings
 from loader import router, cursor, con
 
 
-@router.message(F.text == 'Настройки')
+@router.message(F.text == 'Параметры')
 async def get_settings(message: Message, bot: Bot, state: FSMContext):
     id_user = message.chat.id
     cursor.execute('select * from users where id=(?)', (id_user,))
