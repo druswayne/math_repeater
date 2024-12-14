@@ -1,12 +1,12 @@
 from aiogram import Bot, types, F
 from aiogram.types import Message, FSInputFile
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
+from aiogram.filters import Command
 from keys.keys import kb_training_start
 from loader import json, router, user_data, user_data_day, cursor
 import os
 import time
-
+@router.message(Command('training'))
 @router.message(F.text == 'Быстрая тренировка')
 async def trainings(message:Message, bot: Bot):
     id_user = message.chat.id

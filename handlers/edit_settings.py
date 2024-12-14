@@ -13,12 +13,15 @@ from keys.keys import kb_settings, kb_menu
 from loader import router, cursor, con, scheduler
 from scripts.scheduler_training import scheduler_training
 import os
+def extract_number(item):
+    return int(item.split()[0])
 
 def get_directories_dict(root_dir):
     directories_dict = {}
     for root, dirs, _ in os.walk(root_dir):
         if os.path.basename(root).startswith('class_'):
-            directories_dict[os.path.basename(root)] = dirs
+            directories_dict[os.path.basename(root)] = sorted(dirs, key=extract_number)
+
     return directories_dict
 
 @router.message(F.text == 'Сменить параметры')

@@ -1,5 +1,7 @@
 import json
 import random
+
+
 from num2words import num2words
 from keys.keys import kb_training_start, kb_training_ckeck, kb_training_next, kb_training_end, kb_training_answer
 from loader import router, user_data, user_data_day, user_data_not_start, cursor, con
@@ -102,17 +104,25 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
 
             else:
                 text_message = 'Тренировка завершена 🎉\n'
+                if user_data_day[id_user] == "scheduler":
 
+                    cursor.execute('select counter_day from users where id = (?)', (731866035,))
+                    counter_day = cursor.fetchall()[0][0]
+                    if counter_day in [1,3,5,10,20]:
+                        url_num_img = f'data/img_nun/{counter_day}.png'
+                        file_num_image = FSInputFile(url_num_img)
+                        num_day = num2words(counter_day, to='ordinal', lang='ru', gender='f')
+                        text_message += f'Сегодня уже {num_day} тренировка подряд.\nТак держать!🏆\n'
+                        await callback.message.answer_photo(caption=text_message, photo=file_num_image)
+                    else:
+                        num_day = num2words(counter_day, to='ordinal', lang='ru', gender='f')
+                        text_message += f'Сегодня уже {num_day} тренировка подряд.\nТак держать!🏆\n'
                 if user_data[id_user][2] > sr_znach:
                     text_message += f'{user_[0][1]}, сегодня ты поработал лучше обычного 📈\n'
                 else:
                     text_message += f'{user_[0][1]}, сегодня ты поработал чуть хуже обычного 📉\n'
                 text_message += '\nСтатистика тренировки:\n'
-                if user_data_day[id_user] == "scheduler":
-                    cursor.execute('select counter_day from users where id = (?)', (731866035,))
-                    counter_day = cursor.fetchall()[0][0]
-                    num_day = num2words(counter_day, to='ordinal', lang='ru', gender='f')
-                    text_message += f'Сегодня уже {num_day} тренировка подряд.\nТак держать!🏆\n'
+
 
                 text_message += f'Повторений за тренировку: {user_data[id_user][2]}💪\n'
                 text_message += f'Время тренировки: {int((time.time() - user_data[id_user][4]) // 60)} мин {int((time.time() - user_data[id_user][4]) % 60)} сек ⏳'
