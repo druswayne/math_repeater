@@ -28,7 +28,7 @@ async def scheduler_training(bot: Bot, id_user):
     builder = InlineKeyboardBuilder()
     for button in kb_training_start:
         builder.add(button)
-    builder.adjust(1)
+    builder.adjust(2)
     url = 'data/start.png'
     file = FSInputFile(url)
     user_data_day[id_user] = "scheduler"

@@ -1,8 +1,7 @@
 import json
 import random
-from importlib.metadata import files
 from num2words import num2words
-from keys.keys import kb_training_start, kb_training_ckeck, kb_training_next, kb_training_end
+from keys.keys import kb_training_start, kb_training_ckeck, kb_training_next, kb_training_end, kb_training_answer
 from loader import router, user_data, user_data_day, user_data_not_start, cursor, con
 from aiogram import F, types, Bot
 from aiogram.filters import Command
@@ -43,6 +42,15 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
         with open(f'data/user_json/{id_user}.json', 'w', encoding='utf-8') as file:
             file.write(json.dumps(data_file))
 
+        file_name = user_data[id_user][3].split('/')
+        name_file = file_name[-1].replace('on', 'of')
+        file_name[-1] = name_file
+        new_file = '/'.join(file_name)
+        file = FSInputFile(new_file)
+        kb = kb_training_answer
+    elif callback_data == 'true' or callback_data == 'false':
+
+
         user_data[id_user][1].remove(user_data[id_user][3])
         user_data[id_user][2] += 1
         file_name = user_data[id_user][3].split('/')
@@ -70,7 +78,6 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
     elif callback_data == 'end':
         if user_data[id_user][5]:
 
-
             with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
                 data_file = json.loads(file.read())
             data_file['count_cards_in_day'].append(user_data[id_user][2])
@@ -79,14 +86,11 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
                 cursor.execute('update users set counter_day = counter_day + 1')
                 con.commit()
 
-
-
             try:
                 sr_znach = round(sum(data_file['count_cards_in_day']) / len(data_file['count_cards_in_day']), 2)
 
             except:
                 sr_znach = 0
-
 
             if int(time.time() - user_data[id_user][4]) < 10:
 
@@ -100,21 +104,21 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
                 text_message = 'Тренировка завершена 🎉\n'
 
                 if user_data[id_user][2] > sr_znach:
-                    text_message+= f'{user_[0][1]}, сегодня ты поработал лучше обычного 📈\n'
+                    text_message += f'{user_[0][1]}, сегодня ты поработал лучше обычного 📈\n'
                 else:
-                    text_message+=f'{user_[0][1]}, сегодня ты поработал чуть хуже обычного 📉\n'
-                text_message+='\nСтатистика тренировки:\n'
+                    text_message += f'{user_[0][1]}, сегодня ты поработал чуть хуже обычного 📉\n'
+                text_message += '\nСтатистика тренировки:\n'
                 if user_data_day[id_user] == "scheduler":
                     cursor.execute('select counter_day from users where id = (?)', (731866035,))
                     counter_day = cursor.fetchall()[0][0]
-                    num_day = num2words(counter_day, to='ordinal', lang='ru',gender='f')
+                    num_day = num2words(counter_day, to='ordinal', lang='ru', gender='f')
                     text_message += f'Сегодня уже {num_day} тренировка подряд.\nТак держать!🏆\n'
 
-                text_message+=f'Повторений за тренировку: {user_data[id_user][2]}💪\n'
-                text_message+=f'Время тренировки: {int((time.time() - user_data[id_user][4]) // 60)} мин {int((time.time() - user_data[id_user][4]) % 60)} сек ⏳'
+                text_message += f'Повторений за тренировку: {user_data[id_user][2]}💪\n'
+                text_message += f'Время тренировки: {int((time.time() - user_data[id_user][4]) // 60)} мин {int((time.time() - user_data[id_user][4]) % 60)} сек ⏳'
             del user_data_day[id_user]
             with open(f'data/user_json/{id_user}.json', 'w', encoding='utf-8') as file:
-                                    file.write(json.dumps(data_file))
+                file.write(json.dumps(data_file))
         else:
             text_message = 'Тренировка завершена!\n'
         await bot.delete_message(chat_id=id_user, message_id=callback.message.message_id)
@@ -127,7 +131,7 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
     for button in kb:
         builder.add(button)
 
-    builder.adjust(1)
+    builder.adjust(2)
 
     await bot.edit_message_media(message_id=callback.message.message_id, chat_id=id_user,
                                  media=types.InputMediaPhoto(media=file, caption=''), reply_markup=builder.as_markup())
