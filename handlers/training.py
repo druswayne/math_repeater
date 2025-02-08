@@ -78,6 +78,7 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
         user_data[id_user][3] = url
         file = FSInputFile(url)
     elif callback_data == 'end':
+
         if user_data[id_user][5]:
 
             with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
@@ -106,21 +107,22 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
                 text_message = 'Тренировка завершена 🎉\n'
                 if user_data_day[id_user] == "scheduler":
 
-                    cursor.execute('select counter_day from users where id = (?)', (731866035,))
+                    cursor.execute('select counter_day from users where id = (?)', (id_user,))
                     counter_day = cursor.fetchall()[0][0]
                     if counter_day in [1,3,5,10,20]:
-                        url_num_img = f'data/img_nun/{counter_day}.png'
+                        url_num_img = f'data/img_num/{counter_day}.png'
                         file_num_image = FSInputFile(url_num_img)
                         num_day = num2words(counter_day, to='ordinal', lang='ru', gender='f')
-                        text_message += f'Сегодня уже {num_day} тренировка подряд.\nТак держать!🏆\n'
+                        text_message += f'Сегодня {num_day} тренировка подряд, так держать!🏆\n'
                         await callback.message.answer_photo(caption=text_message, photo=file_num_image)
+                        text_message = ''
                     else:
                         num_day = num2words(counter_day, to='ordinal', lang='ru', gender='f')
-                        text_message += f'Сегодня уже {num_day} тренировка подряд.\nТак держать!🏆\n'
-                if user_data[id_user][2] > sr_znach:
-                    text_message += f'{user_[0][1]}, сегодня ты поработал лучше обычного 📈\n'
-                else:
-                    text_message += f'{user_[0][1]}, сегодня ты поработал чуть хуже обычного 📉\n'
+                        text_message += f'Сегодня уже {num_day} тренировка подряд, так держать!🏆\n'
+                    if user_data[id_user][2] >= sr_znach:
+                        text_message += f'{user_[0][1]}, сегодня тебе удалось поработать лучше обычного 📈\n'
+                    else:
+                        text_message += f'{user_[0][1]}, сегодня тебе удалось поработать чуть хуже обычного 📉\n'
                 text_message += '\nСтатистика тренировки:\n'
 
 
@@ -130,7 +132,13 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
             with open(f'data/user_json/{id_user}.json', 'w', encoding='utf-8') as file:
                 file.write(json.dumps(data_file))
         else:
-            text_message = 'Тренировка завершена!\n'
+
+            text_message = (f'{user_[0][1]}, ты пропустил сегодняшнюю тренивку.\n'
+                            'Помни, дисциплина залог успеха!')
+            if user_data_day[id_user] == "scheduler":
+                cursor.execute('update users set counter_day = 0')
+                con.commit()
+
         await bot.delete_message(chat_id=id_user, message_id=callback.message.message_id)
         await callback.message.answer(text_message)
         del user_data[id_user]

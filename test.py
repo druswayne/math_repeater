@@ -1,13 +1,13 @@
-from num2words import num2words
 
-# Most common usage.
-print(num2words(1))
+import os
+def extract_number(item):
+    return int(item.split()[0][:-1])
 
-# Other variants, according to the type of article.
-print(num2words(1, to='ordinal', lang='ru'))
-print(num2words(1, to='ordinal_num', lang='ru'))
-print(num2words(1, to='year', lang='ru'))
-print(num2words(1, to='currency', lang='ru'))
+def get_directories_dict(root_dir):
+    directories_dict = {}
+    for root, dirs, _ in os.walk(root_dir):
+        if os.path.basename(root).startswith('class_'):
+            directories_dict[os.path.basename(root)] = sorted(dirs, key=extract_number)
+    return directories_dict
 
-# Language Support.
-print(type(num2words(36, lang='ru')))
+print(get_directories_dict('data/class'))

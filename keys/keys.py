@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.types import WebAppInfo
 
 kb_menu = [
-    types.KeyboardButton(text='Быстрая тренировка'),
+    #types.KeyboardButton(text='Быстрая тренировка'),
     types.KeyboardButton(text='Статистика'),
     types.KeyboardButton(text='Параметры')
 ]

@@ -24,19 +24,22 @@ async def get_settings(message: Message, bot: Bot, state: FSMContext):
     if not os.path.isfile(file_path):
         await message.answer('Для начала необходимо выбрать параметры тренировки\nПерейди в меню настройки.')
         return
-    cursor.execute('select counter_day from users where id = (?)', (731866035,))
+    cursor.execute('select counter_day from users where id = (?)', (id_user,))
     counter_day = cursor.fetchall()[0][0]
     with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
         data_file = json.loads(file.read())
+    text = f'Ежедневных тренировок подряд: {counter_day}\n'
+    text += 'Средние показатели по тренировкам:\n'
+
     try:
-        text = ('Средние показатели по тренировкам:\n'
+        text += (
             f'⏺️ Повторений за тренировку – {round(sum(data_file['count_cards_in_day']) / len(data_file['count_cards_in_day']), 2)}\n'
-            f'⏺️ Время тренировки: {round(sum(data_file['count_times_in_day']) / len(data_file['count_times_in_day']), 2)}\n'
+            f'⏺️ Время тренировки: {round(sum(data_file['count_times_in_day']) / len(data_file['count_times_in_day']), 2)} мин\n'
             )
     except:
-        text = ('Средние показатели по тренировкам:\n'
+        text = (
             f'⏺️ Повторений за тренировку – {0}\n'
-            f'⏺️ Время тренировки: {0}\n'
+            f'⏺️ Время тренировки: {0} мин\n'
             )
 
     builder = ReplyKeyboardBuilder()

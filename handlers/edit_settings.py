@@ -14,7 +14,7 @@ from loader import router, cursor, con, scheduler
 from scripts.scheduler_training import scheduler_training
 import os
 def extract_number(item):
-    return int(item.split()[0])
+    return int(item.split()[0][:-1])
 
 def get_directories_dict(root_dir):
     directories_dict = {}
