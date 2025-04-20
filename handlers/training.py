@@ -1,8 +1,10 @@
 import json
 import random
-
-
+import speech_recognition as sr
+from moviepy.editor import AudioFileClip
 from num2words import num2words
+from pyexpat.errors import messages
+import os
 from keys.keys import kb_training_start, kb_training_ckeck, kb_training_next, kb_training_end, kb_training_answer
 from loader import router, user_data, user_data_day, user_data_not_start, cursor, con
 from aiogram import F, types, Bot
@@ -16,8 +18,12 @@ from json import loads
 import time
 
 
+class FormVoice(StatesGroup):
+    voice = State()
+    url = State()
+
 @router.callback_query(F.data.startswith("training"))
-async def open_table(callback: types.CallbackQuery, bot: Bot):
+async def open_table(callback: types.CallbackQuery, bot: Bot,state: FSMContext):
     callback_data = callback.data.split('_')[1]
     id_user = callback.message.chat.id
     cursor.execute('select * from users where id=(?)', (id_user,))
@@ -36,7 +42,15 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
         user_data[id_user][3] = url
         user_data[id_user][4] = time.time()
         file = FSInputFile(url)
+    elif callback_data == 'voice':
 
+        await state.update_data(url=user_data[id_user][3])
+        await state.set_state(FormVoice.voice)
+
+        await bot.edit_message_caption(message_id=callback.message.message_id, chat_id=id_user,
+                                     caption='Отправь свой ответ голосовым сообщением, а я проверю!'
+                                     )
+        return
     elif callback_data == 'check':
         with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
             data_file = json.loads(file.read())
@@ -133,16 +147,21 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
                 file.write(json.dumps(data_file))
         else:
 
-            text_message = (f'{user_[0][1]}, ты пропустил сегодняшнюю тренивку.\n'
-                            'Помни, дисциплина залог успеха!')
             if user_data_day[id_user] == "scheduler":
                 cursor.execute('update users set counter_day = 0')
                 con.commit()
+                text_message = (f'{user_[0][1]}, ты пропустил сегодняшнюю тренивку.\n'
+                                'Помни, дисциплина залог успеха!')
+            else:
+                text_message = f'{user_[0][1]}, тренировка закончилась, даже не начавшись.\n'
 
         await bot.delete_message(chat_id=id_user, message_id=callback.message.message_id)
         await callback.message.answer(text_message)
-        del user_data[id_user]
-        del user_data_not_start[id_user]
+        try:
+            del user_data[id_user]
+            del user_data_not_start[id_user]
+        except:
+            pass
         return
 
     builder = InlineKeyboardBuilder()
@@ -153,3 +172,76 @@ async def open_table(callback: types.CallbackQuery, bot: Bot):
 
     await bot.edit_message_media(message_id=callback.message.message_id, chat_id=id_user,
                                  media=types.InputMediaPhoto(media=file, caption=''), reply_markup=builder.as_markup())
+
+
+from openai import OpenAI
+
+@router.message(FormVoice.voice)
+@router.message(F.voice)
+async def get_voice(message: Message, bot, state: FSMContext):
+
+    file_id = message.voice.file_id
+
+    file = await bot.get_file(file_id)
+
+    file_path = file.file_path
+
+    ogg_path = f'temp/{message.chat.id}.ogg'
+
+    await bot.download_file(file_path, ogg_path)
+
+    # Конвертируем в WAV используя moviepy
+    audio_clip = AudioFileClip(ogg_path)
+
+    wav_path = f'temp/{message.chat.id}.wav'
+
+    audio_clip.write_audiofile(wav_path, fps=44100)
+
+    audio_clip.close()
+
+    # Распознаем речь
+    recognizer = sr.Recognizer()
+    with sr.AudioFile(wav_path) as source:
+        audio_data = recognizer.record(source)
+    text = recognizer.recognize_google(audio_data, language='ru-RU')
+
+    if os.path.exists(ogg_path):
+        os.remove(ogg_path)
+    if os.path.exists(wav_path):
+        os.remove(wav_path)
+
+    data = await state.get_data()
+    url = data['url']
+    data = url.split('/')
+    data[1] = 'answer'
+    num = int(data[-1].split('_')[0])
+    data[-1] = f'{num}.txt'
+    answer_url = '/'.join(data)
+    with open(answer_url, 'r', encoding='utf-8') as file:
+        data_answer = file.read()
+
+    client = OpenAI(
+        api_key='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2YzIzN2MwLWJmZmMtNGNiZC1hYTVhLTAwZDQ2OWUyZDZmZCIsImlzRGV2ZWxvcGVyIjp0cnVlLCJpYXQiOjE3NDQ5OTI5OTcsImV4cCI6MjA2MDU2ODk5N30.-xE7_Ts_v3tTYibxr7tXwrteYjHtE_HnyVs7hEI7Thk',
+        base_url='https://bothub.chat/api/v2/openai/v1'
+    )
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                'role': 'user',
+                'content': (f"""Ты учитель математики в средней школе. Ученик отвечает тебе на вопрос.
+сильно не придирайся, ты добрый учитель. 
+Твоя задача сравнить ответ ученика  с текстом правильного ответа (текс ответа содержит всю необходимую информацию, которую ученик должен даь), и кратко прокоментировать ответ ученику.
+Комментарий ты даешь от своего лица и обращаешься к ученику (не используй в обращении слово ученик. 
+в комментарии ты должен сказать, правильно ли ответил ученик на вопрос. если ответил с грубыми ошибками, то указать на них.
+ответ ученика может быть не слово в слово, главное, чтобы было по смыслу правильно. 
+ты можешь добавлять в конце какую-то доп информацию по вопросу в конце обращения."""
+                           f'Ответ ученика:{text}'
+                            f'Правильный ответ:{data_answer}')
+            }
+        ],
+        model='gpt-3.5-turbo',
+    )
+    print(text)
+    print(data_answer)
+    await message.answer(chat_completion.choices[0].message.content)

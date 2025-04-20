@@ -39,7 +39,7 @@ async def trainings(message:Message, bot: Bot):
     url = 'data/start.png'
     file = FSInputFile(url)
     user_data_day[id_user] = "training"
-    message = await message.answer_photo(photo=file,
+    message = await message.answer_photo(caption='',photo=file,
                                    reply_markup=builder.as_markup(resize_keyboard=True))
     user_data[id_user] = [message.message_id, files ,0, 0, 0, False ]
 
