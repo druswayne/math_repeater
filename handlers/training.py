@@ -253,14 +253,23 @@ async def get_voice(message: Message, bot, state: FSMContext):
     with open(f'data/user_json/{id_user}.json', 'w', encoding='utf-8') as file:
         file.write(json.dumps(data_file))
 
+
+    user_data[id_user][1].remove(user_data[id_user][3])
+    user_data[id_user][2] += 1
     file_name = user_data[id_user][3].split('/')
     name_file = file_name[-1].replace('on', 'of')
     file_name[-1] = name_file
     new_file = '/'.join(file_name)
     file = FSInputFile(new_file)
+    if not len(user_data[id_user][1]):
+        kb = kb_training_end
+    else:
+        kb = kb_training_next
+
+
 
     builder = InlineKeyboardBuilder()
-    for button in kb_training_next:
+    for button in kb:
         builder.add(button)
 
     builder.adjust(2)
