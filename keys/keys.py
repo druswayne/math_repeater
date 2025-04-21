@@ -19,6 +19,10 @@ kb_training_answer = [
     types.InlineKeyboardButton(text="Ответил неверно 👎", callback_data="training_false"),
     types.InlineKeyboardButton(text="Закончить", callback_data="training_end")]
 
+kb_training_answer_voice = [
+types.InlineKeyboardButton(text="Следующий вопрос", callback_data="training_true"),
+    types.InlineKeyboardButton(text="Закончить", callback_data="training_end")]
+
 kb_training_start = [
     types.InlineKeyboardButton(text="Начать", callback_data="training_start"),
     types.InlineKeyboardButton(text="Закончить", callback_data="training_end")]

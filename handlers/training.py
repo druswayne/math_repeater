@@ -5,7 +5,8 @@ from moviepy.editor import AudioFileClip
 from num2words import num2words
 from pyexpat.errors import messages
 import os
-from keys.keys import kb_training_start, kb_training_ckeck, kb_training_next, kb_training_end, kb_training_answer
+from keys.keys import kb_training_start, kb_training_ckeck, kb_training_next, kb_training_end, kb_training_answer, \
+    kb_training_answer_voice
 from loader import router, user_data, user_data_day, user_data_not_start, cursor, con
 from aiogram import F, types, Bot
 from aiogram.filters import Command
@@ -22,8 +23,9 @@ class FormVoice(StatesGroup):
     voice = State()
     url = State()
 
+
 @router.callback_query(F.data.startswith("training"))
-async def open_table(callback: types.CallbackQuery, bot: Bot,state: FSMContext):
+async def open_table(callback: types.CallbackQuery, bot: Bot, state: FSMContext):
     callback_data = callback.data.split('_')[1]
     id_user = callback.message.chat.id
     cursor.execute('select * from users where id=(?)', (id_user,))
@@ -48,8 +50,8 @@ async def open_table(callback: types.CallbackQuery, bot: Bot,state: FSMContext):
         await state.set_state(FormVoice.voice)
 
         await bot.edit_message_caption(message_id=callback.message.message_id, chat_id=id_user,
-                                     caption='Отправь свой ответ голосовым сообщением, а я проверю!'
-                                     )
+                                       caption='Отправь свой ответ голосовым сообщением, а я проверю!'
+                                       )
         return
     elif callback_data == 'check':
         with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
@@ -65,7 +67,6 @@ async def open_table(callback: types.CallbackQuery, bot: Bot,state: FSMContext):
         file = FSInputFile(new_file)
         kb = kb_training_answer
     elif callback_data == 'true' or callback_data == 'false':
-
 
         user_data[id_user][1].remove(user_data[id_user][3])
         user_data[id_user][2] += 1
@@ -123,7 +124,7 @@ async def open_table(callback: types.CallbackQuery, bot: Bot,state: FSMContext):
 
                     cursor.execute('select counter_day from users where id = (?)', (id_user,))
                     counter_day = cursor.fetchall()[0][0]
-                    if counter_day in [1,3,5,10,20]:
+                    if counter_day in [1, 3, 5, 10, 20]:
                         url_num_img = f'data/img_num/{counter_day}.png'
                         file_num_image = FSInputFile(url_num_img)
                         num_day = num2words(counter_day, to='ordinal', lang='ru', gender='f')
@@ -138,7 +139,6 @@ async def open_table(callback: types.CallbackQuery, bot: Bot,state: FSMContext):
                     else:
                         text_message += f'{user_[0][1]}, сегодня тебе удалось поработать чуть хуже обычного 📉\n'
                 text_message += '\nСтатистика тренировки:\n'
-
 
                 text_message += f'Повторений за тренировку: {user_data[id_user][2]}💪\n'
                 text_message += f'Время тренировки: {int((time.time() - user_data[id_user][4]) // 60)} мин {int((time.time() - user_data[id_user][4]) % 60)} сек ⏳'
@@ -176,10 +176,10 @@ async def open_table(callback: types.CallbackQuery, bot: Bot,state: FSMContext):
 
 from openai import OpenAI
 
+
 @router.message(FormVoice.voice)
 @router.message(F.voice)
 async def get_voice(message: Message, bot, state: FSMContext):
-
     file_id = message.voice.file_id
 
     file = await bot.get_file(file_id)
@@ -211,6 +211,7 @@ async def get_voice(message: Message, bot, state: FSMContext):
         os.remove(wav_path)
 
     data = await state.get_data()
+    await state.clear()
     url = data['url']
     data = url.split('/')
     data[1] = 'answer'
@@ -236,12 +237,39 @@ async def get_voice(message: Message, bot, state: FSMContext):
 в комментарии ты должен сказать, правильно ли ответил ученик на вопрос. если ответил с грубыми ошибками, то указать на них.
 ответ ученика может быть не слово в слово, главное, чтобы было по смыслу правильно. 
 ты можешь добавлять в конце какую-то доп информацию по вопросу в конце обращения."""
-                           f'Ответ ученика:{text}'
+                            f'Ответ ученика:{text}'
                             f'Правильный ответ:{data_answer}')
             }
         ],
-        model='gpt-3.5-turbo',
+        model='o3-mini-high',
     )
-    print(text)
-    print(data_answer)
-    await message.answer(chat_completion.choices[0].message.content)
+
+    result = chat_completion.choices[0].message.content
+
+    id_user = message.from_user.id
+    with open(f'data/user_json/{id_user}.json', 'r', encoding='utf-8') as file:
+        data_file = json.loads(file.read())
+    data_file['files'][user_data[id_user][3]] += 1
+    with open(f'data/user_json/{id_user}.json', 'w', encoding='utf-8') as file:
+        file.write(json.dumps(data_file))
+
+    file_name = user_data[id_user][3].split('/')
+    name_file = file_name[-1].replace('on', 'of')
+    file_name[-1] = name_file
+    new_file = '/'.join(file_name)
+    file = FSInputFile(new_file)
+
+    builder = InlineKeyboardBuilder()
+    for button in kb_training_next:
+        builder.add(button)
+
+    builder.adjust(2)
+    await message.delete()
+    for i in range(message.message_id, 0, -1):
+        try:
+            await bot.edit_message_media(message_id=i, chat_id=id_user,
+                                         media=types.InputMediaPhoto(media=file, caption=result),
+                                         reply_markup=builder.as_markup())
+            break
+        except:
+            pass
