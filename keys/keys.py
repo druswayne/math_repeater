@@ -29,7 +29,7 @@ kb_training_start = [
 
 kb_training_ckeck = [
     types.InlineKeyboardButton(text="Посмотреть ответ", callback_data="training_check"),
-    types.InlineKeyboardButton(text="Проверить ответ", callback_data="training_voice"),
+    types.InlineKeyboardButton(text="Проверить ответ 🤖", callback_data="training_voice"),
     types.InlineKeyboardButton(text="Закончить", callback_data="training_end")]
 
 kb_training_next = [
